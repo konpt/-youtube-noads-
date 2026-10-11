@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>TrungPlay - YouTube No-Ads Studio</title>
+    <title>YouTube No-Ads Premium Studio</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -13,313 +13,243 @@
         body {
             background-color: #0f0f0f;
             color: #f1f1f1;
-            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Roboto', sans-serif;
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f0f0f;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #3f3f3f;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        .aspect-video-container {
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f0f0f; }
+        ::-webkit-scrollbar-thumb { background: #3f3f3f; border-radius: 3px; }
+        .ratio-box {
             position: relative;
             padding-bottom: 56.25%;
             height: 0;
-            overflow: hidden;
             background: #000;
-            border-radius: 12px;
+            border-radius: 16px;
+            overflow: hidden;
         }
-        .aspect-video-container iframe {
+        .ratio-box iframe {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
+            top: 0; left: 0; width: 100%; height: 100%; border: 0;
         }
     </style>
 </head>
 <body class="flex flex-col h-screen overflow-hidden">
 
-    <!-- HEADER -->
-    <header class="flex items-center justify-between px-4 py-2 bg-[#0f0f0f] sticky top-0 z-50 border-b border-[#272727] h-14">
-        <!-- Left Section -->
-        <div class="flex items-center gap-4">
-            <button class="p-2 hover:bg-[#272727] rounded-full text-white text-lg">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <div class="flex items-center gap-1 cursor-pointer" onclick="loadVideo('jfKfPfyJRdk', 'Học Cùng Tôi #12 | Coding Lofi Beats [No Ads]')">
-                <i class="fa-brands fa-youtube text-red-600 text-2xl"></i>
-                <span class="font-bold text-xl tracking-tighter">TrungPlay</span>
-                <span class="text-[10px] text-gray-400 self-start mt-1">VN</span>
-            </div>
+    <!-- HEADER BAR -->
+    <header class="flex items-center justify-between px-6 py-3 bg-[#0f0f0f] border-b border-[#272727] h-16 flex-shrink-0">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="loadDefaultVideo()">
+            <i class="fa-brands fa-youtube text-red-600 text-3xl"></i>
+            <span class="font-bold text-xl tracking-tighter text-white">NoAds<span class="text-red-500">Premium</span></span>
         </div>
 
-        <!-- Center Section (Search Bar & Voice) -->
-        <div class="flex items-center gap-2 w-full max-w-[600px] mx-4">
+        <!-- SEARCH BAR -->
+        <div class="flex items-center w-full max-w-xl mx-4">
             <div class="flex w-full items-center bg-[#121212] border border-[#303030] rounded-full overflow-hidden focus-within:border-blue-500">
-                <input id="searchInput" type="text" placeholder="Tìm kiếm hoặc dán URL YouTube..." 
+                <input id="searchInput" type="text" placeholder="Tìm kiếm tên video hoặc dán link YouTube..." 
                        class="w-full bg-transparent px-4 py-2 text-sm text-white focus:outline-none"
                        onkeypress="if(event.key === 'Enter') handleSearch()">
                 <button onclick="handleSearch()" class="bg-[#222222] hover:bg-[#303030] px-5 py-2 border-l border-[#303030] text-gray-300">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
             </div>
-            <button id="micBtn" onclick="startVoiceSearch()" class="p-3 bg-[#222222] hover:bg-[#303030] rounded-full text-white flex-shrink-0" title="Tìm kiếm giọng nói">
-                <i class="fa-solid fa-microphone"></i>
-            </button>
         </div>
 
-        <!-- Right Section -->
+        <!-- CONTROLS & TABS -->
         <div class="flex items-center gap-3">
-            <button class="p-2 hover:bg-[#272727] rounded-full text-white hidden sm:block"><i class="fa-solid fa-video"></i></button>
-            <button class="p-2 hover:bg-[#272727] rounded-full text-white relative hidden sm:block">
-                <i class="fa-solid fa-bell"></i>
-                <span class="absolute top-1 right-1 bg-red-600 text-xs px-1 rounded-full text-[10px]">9+</span>
-            </button>
-            <button class="flex items-center gap-2 border border-[#303030] text-blue-400 px-3 py-1.5 rounded-full hover:bg-blue-900/20 text-sm font-medium">
-                <i class="fa-regular fa-user-circle text-base"></i> Đăng nhập
-            </button>
+            <button onclick="switchTab('home')" id="tabHomeBtn" class="px-3 py-1.5 rounded-full text-sm font-medium bg-[#272727] text-white">Khám phá</button>
+            <button onclick="switchTab('library')" id="tabLibBtn" class="px-3 py-1.5 rounded-full text-sm font-medium hover:bg-[#272727] text-gray-300">Thư viện của tôi</button>
         </div>
     </header>
 
+    <!-- MAIN BODY -->
     <div class="flex flex-1 overflow-hidden">
-        <!-- SIDEBAR -->
-        <aside class="w-16 md:w-56 bg-[#0f0f0f] flex flex-col gap-1 p-2 border-r border-[#272727] flex-shrink-0 overflow-y-auto">
-            <a href="#" class="flex items-center gap-4 p-3 hover:bg-[#272727] rounded-xl text-white font-medium text-sm">
-                <i class="fa-solid fa-house text-lg w-6 text-center"></i>
-                <span class="hidden md:inline">Trang chủ</span>
-            </a>
-            <a href="#" class="flex items-center gap-4 p-3 hover:bg-[#272727] rounded-xl text-gray-300 hover:text-white text-sm">
-                <i class="fa-solid fa-bolt text-lg w-6 text-center"></i>
-                <span class="hidden md:inline">Shorts</span>
-            </a>
-            <a href="#" class="flex items-center gap-4 p-3 hover:bg-[#272727] rounded-xl text-gray-300 hover:text-white text-sm">
-                <i class="fa-solid fa-layer-group text-lg w-6 text-center"></i>
-                <span class="hidden md:inline">Subscriptions</span>
-            </a>
-            <hr class="border-[#272727] my-2 hidden md:block">
-            <a href="#" class="flex items-center gap-4 p-3 hover:bg-[#272727] rounded-xl text-gray-300 hover:text-white text-sm">
-                <i class="fa-solid fa-folder-open text-lg w-6 text-center"></i>
-                <span class="hidden md:inline">Thư viện</span>
-            </a>
-            <a href="#" class="flex items-center gap-4 p-3 hover:bg-[#272727] rounded-xl text-gray-300 hover:text-white text-sm">
-                <i class="fa-solid fa-clock-rotate-left text-lg w-6 text-center"></i>
-                <span class="hidden md:inline">Lịch sử</span>
-            </a>
-            <a href="#" class="flex items-center gap-4 p-3 hover:bg-[#272727] rounded-xl text-gray-300 hover:text-white text-sm">
-                <i class="fa-solid fa-bookmark text-lg w-6 text-center"></i>
-                <span class="hidden md:inline">Đã lưu</span>
-            </a>
-        </aside>
+        
+        <!-- MAIN CONTENT VIEW -->
+        <main class="flex-1 overflow-y-auto p-6">
+            
+            <!-- HOME VIEW -->
+            <div id="homeView" class="max-w-6xl mx-auto flex flex-col gap-6">
+                <!-- Video Player Container -->
+                <div class="ratio-box shadow-2xl">
+                    <iframe id="mainPlayer" 
+                            src="https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=1&enablejsapi=1" 
+                            title="YouTube Player" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen></iframe>
+                </div>
 
-        <!-- MAIN CONTENT AREA -->
-        <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-[#0f0f0f]">
-            <div class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- VIDEO PLAYER & DETAILS (2 Columns on large screen) -->
-                <div class="lg:col-span-2 flex flex-col gap-4">
-                    <!-- Embedded Video Player -->
-                    <div class="aspect-video-container shadow-2xl">
-                        <iframe id="youtubeIframe" 
-                                src="https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=1&enablejsapi=1&origin=https://trungplay.vercel.app" 
-                                title="YouTube Video Player" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                referrerpolicy="strict-origin-when-cross-origin" 
-                                allowfullscreen>
-                        </iframe>
+                <!-- Video Actions & Info -->
+                <div class="flex flex-wrap items-center justify-between gap-4 bg-[#1f1f1f] p-4 rounded-xl border border-[#272727]">
+                    <div>
+                        <h1 id="currentTitle" class="text-lg font-bold text-white">Học Cùng Tôi #12 | Coding Lofi Beats</h1>
+                        <p class="text-xs text-gray-400 mt-1">Phát sạch không quảng cáo • Chuẩn giao diện Premium</p>
                     </div>
-
-                    <!-- Video Title -->
-                    <h1 id="videoTitle" class="text-xl md:text-2xl font-bold text-white leading-tight">
-                        Học Cùng Tôi #12 | Coding Lofi Beats [No Ads]
-                    </h1>
-
-                    <!-- Channel Info & Actions -->
-                    <div class="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-[#272727]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white">
-                                CC
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-white text-base flex items-center gap-1">
-                                    CodeChill <i class="fa-solid fa-circle-check text-xs text-gray-400"></i>
-                                </h3>
-                                <p class="text-xs text-gray-400">1.4M subscribers</p>
-                            </div>
-                            <button class="ml-2 bg-white text-black font-semibold px-4 py-2 rounded-full hover:bg-gray-200 text-sm">
-                                Đăng ký
-                            </button>
-                        </div>
-
-                        <div class="flex items-center gap-2">
-                            <div class="flex items-center bg-[#272727] rounded-full overflow-hidden text-sm">
-                                <button class="px-4 py-2 hover:bg-[#3f3f3f] flex items-center gap-2 border-r border-[#3f3f3f]">
-                                    <i class="fa-regular fa-thumbs-up"></i> 198K
-                                </button>
-                                <button class="px-4 py-2 hover:bg-[#3f3f3f]">
-                                    <i class="fa-regular fa-thumbs-down"></i>
-                                </button>
-                            </div>
-                            <button class="bg-[#272727] hover:bg-[#3f3f3f] px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
-                                <i class="fa-solid fa-share"></i> Chia sẻ
-                            </button>
-                            <button class="bg-[#272727] hover:bg-[#3f3f3f] p-2 rounded-full text-sm">
-                                <i class="fa-solid fa-ellipsis"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Description Box -->
-                    <div class="bg-[#272727] rounded-xl p-4 text-sm text-gray-300">
-                        <p class="font-semibold text-white mb-1">2.1M lượt xem • 3 ngày trước</p>
-                        <p>Danh sách nhạc lofi chill không quảng cáo phục vụ làm việc, học tập và lập trình hiệu quả.</p>
-                    </div>
-
-                    <!-- Comments Section -->
-                    <div class="mt-4">
-                        <h3 class="text-lg font-bold mb-4">Bình luận</h3>
-                        <div class="flex gap-3 mb-4">
-                            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold">U</div>
-                            <input type="text" placeholder="Viết bình luận..." class="w-full bg-transparent border-b border-[#3f3f3f] focus:border-white focus:outline-none text-sm pb-1">
+                    <div class="flex items-center gap-3">
+                        <button onclick="saveCurrentVideo()" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-full font-medium flex items-center gap-2 transition">
+                            <i class="fa-solid fa-heart"></i> Lưu vào Yêu thích
+                        </button>
+                        <div class="flex items-center gap-2 bg-[#272727] px-3 py-2 rounded-full text-sm">
+                            <span class="text-gray-300 text-xs">Tự động phát:</span>
+                            <input type="checkbox" id="autoplayToggle" checked class="cursor-pointer accent-red-600">
                         </div>
                     </div>
                 </div>
 
-                <!-- RECOMMENDATIONS / SIDE LIST (1 Column) -->
-                <div class="flex flex-col gap-3">
-                    <h2 class="font-bold text-lg mb-1 flex items-center justify-between">
-                        Danh sách video
-                        <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+                <!-- Quick Themes / Recommendations -->
+                <div>
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-white">
+                        <i class="fa-solid fa-fire text-red-500"></i> Chủ đề phát nhanh & Gợi ý
                     </h2>
-
-                    <!-- Video Item 1 -->
-                    <div onclick="loadVideo('SqcY0GlETPk', 'React Tutorial cho người mới bắt đầu')" 
-                         class="flex gap-3 cursor-pointer group p-2 rounded-xl hover:bg-[#272727] transition">
-                        <div class="relative w-40 h-24 flex-shrink-0 bg-gray-800 rounded-lg overflow-hidden">
-                            <img src="https://img.youtube.com/vi/SqcY0GlETPk/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition duration-200">
-                            <span class="absolute bottom-1 right-1 bg-black/80 text-[10px] px-1 rounded text-white font-mono">3:12</span>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <h4 class="text-sm font-semibold text-white line-clamp-2 leading-snug group-hover:text-blue-400">React Tutorial cho người mới bắt đầu</h4>
-                            <p class="text-xs text-gray-400">CodeChill <i class="fa-solid fa-circle-check text-[10px]"></i></p>
-                            <p class="text-xs text-gray-400">2.1M views • 3 days ago</p>
-                        </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4" id="recommendationGrid">
+                        <!-- Populated via JS -->
                     </div>
-
-                    <!-- Video Item 2 -->
-                    <div onclick="loadVideo('fJ9rUzIMcZQ', 'Daily Vlog | Một ngày làm Lập trình viên')" 
-                         class="flex gap-3 cursor-pointer group p-2 rounded-xl hover:bg-[#272727] transition">
-                        <div class="relative w-40 h-24 flex-shrink-0 bg-gray-800 rounded-lg overflow-hidden">
-                            <img src="https://img.youtube.com/vi/fJ9rUzIMcZQ/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition duration-200">
-                            <span class="absolute bottom-1 right-1 bg-black/80 text-[10px] px-1 rounded text-white font-mono">9:45</span>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <h4 class="text-sm font-semibold text-white line-clamp-2 leading-snug group-hover:text-blue-400">Daily Vlog | Một ngày làm Lập trình viên</h4>
-                            <p class="text-xs text-gray-400">CodeChill <i class="fa-solid fa-circle-check text-[10px]"></i></p>
-                            <p class="text-xs text-gray-400">2.1M views • 3 days ago</p>
-                        </div>
-                    </div>
-
-                    <!-- Video Item 3 -->
-                    <div onclick="loadVideo('W6NZfCO5SIk', 'VueJS Guide | Hướng dẫn tự học Vue3')" 
-                         class="flex gap-3 cursor-pointer group p-2 rounded-xl hover:bg-[#272727] transition">
-                        <div class="relative w-40 h-24 flex-shrink-0 bg-gray-800 rounded-lg overflow-hidden">
-                            <img src="https://img.youtube.com/vi/W6NZfCO5SIk/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition duration-200">
-                            <span class="absolute bottom-1 right-1 bg-black/80 text-[10px] px-1 rounded text-white font-mono">12:30</span>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <h4 class="text-sm font-semibold text-white line-clamp-2 leading-snug group-hover:text-blue-400">VueJS Guide | Hướng dẫn tự học Vue3</h4>
-                            <p class="text-xs text-gray-400">CodeChill <i class="fa-solid fa-circle-check text-[10px]"></i></p>
-                            <p class="text-xs text-gray-400">2.1M views • 1 day ago</p>
-                        </div>
-                    </div>
-
-                    <!-- Video Item 4 -->
-                    <div onclick="loadVideo('4xDzrJKXOOY', 'Anime Beats | Nhạc anime thư giãn')" 
-                         class="flex gap-3 cursor-pointer group p-2 rounded-xl hover:bg-[#272727] transition">
-                        <div class="relative w-40 h-24 flex-shrink-0 bg-gray-800 rounded-lg overflow-hidden">
-                            <img src="https://img.youtube.com/vi/4xDzrJKXOOY/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition duration-200">
-                            <span class="absolute bottom-1 right-1 bg-black/80 text-[10px] px-1 rounded text-white font-mono">1:15:20</span>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <h4 class="text-sm font-semibold text-white line-clamp-2 leading-snug group-hover:text-blue-400">Anime Beats | Nhạc anime thư giãn</h4>
-                            <p class="text-xs text-gray-400">CodeChill <i class="fa-solid fa-circle-check text-[10px]"></i></p>
-                            <p class="text-xs text-gray-400">198K views • 1 day ago</p>
-                        </div>
-                    </div>
-
                 </div>
             </div>
+
+            <!-- LIBRARY VIEW (Favorites & History) -->
+            <div id="libraryView" class="max-w-6xl mx-auto hidden flex flex-col gap-6">
+                <h2 class="text-2xl font-bold text-white">Thư viện cá nhân của bạn</h2>
+                
+                <div class="flex flex-col gap-4">
+                    <h3 class="text-lg font-semibold text-red-500 border-b border-[#272727] pb-2">❤️ Video Yêu Thích</h3>
+                    <div id="favoritesList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        <!-- Populated via LocalStorage -->
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-4 mt-6">
+                    <h3 class="text-lg font-semibold text-blue-400 border-b border-[#272727] pb-2">🕒 Lịch Sử Xem Gần Đây</h3>
+                    <div id="historyList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        <!-- Populated via LocalStorage -->
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Hàm trích xuất Video ID từ URL YouTube
-        function extractVideoId(url) {
+        const defaultVideos = [
+            { id: 'jfKfPfyJRdk', title: 'Học Cùng Tôi #12 | Coding Lofi Beats', thumb: 'https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg' },
+            { id: 'SqcY0GlETPk', title: 'React Tutorial cho người mới bắt đầu', thumb: 'https://img.youtube.com/vi/SqcY0GlETPk/hqdefault.jpg' },
+            { id: 'fJ9rUzIMcZQ', title: 'Daily Vlog | Một ngày làm Lập trình viên', thumb: 'https://img.youtube.com/vi/fJ9rUzIMcZQ/hqdefault.jpg' },
+            { id: '4xDzrJKXOOY', title: 'Anime Beats | Nhạc anime thư giãn', thumb: 'https://img.youtube.com/vi/4xDzrJKXOOY/hqdefault.jpg' }
+        ];
+
+        let currentPlaying = defaultVideos[0];
+
+        // Khởi tạo giao diện
+        window.onload = function() {
+            renderRecommendations();
+            loadDefaultVideo();
+        };
+
+        function renderRecommendations() {
+            const grid = document.getElementById('recommendationGrid');
+            grid.innerHTML = defaultVideos.map(v => `
+                <div onclick="playVideo('${v.id}', '${v.title}')" class="bg-[#1f1f1f] rounded-xl overflow-hidden cursor-pointer hover:bg-[#2a2a2a] transition group border border-[#272727]">
+                    <div class="relative aspect-video">
+                        <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition">
+                    </div>
+                    <div class="p-3">
+                        <h4 class="text-sm font-semibold text-white line-clamp-2">${v.title}</h4>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function extractVideoId(urlOrId) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : url;
+            const match = urlOrId.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : urlOrId;
         }
 
-        // Hàm thay đổi Video trong khung phát
-        function loadVideo(videoIdOrUrl, title) {
-            const id = extractVideoId(videoIdOrUrl);
-            const iframe = document.getElementById('youtubeIframe');
-            iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&enablejsapi=1&origin=${window.location.origin}`;
-            if(title) {
-                document.getElementById('videoTitle').innerText = title;
-            }
-        }
-
-        // Xử lý khi nhấn nút tìm kiếm
-        function handleSearch() {
-            const input = document.getElementById('searchInput').value.trim();
-            if (input) {
-                loadVideo(input, `Kết quả tìm kiếm: ${input}`);
-            }
-        }
-
-        // Nhận diện giọng nói (Web Speech API)
-        function startVoiceSearch() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert("Trình duyệt của bạn không hỗ trợ tính năng nhận diện giọng nói!");
-                return;
-            }
-
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'vi-VN';
+        function playVideo(idOrUrl, title) {
+            const id = extractVideoId(idOrUrl);
+            const isAutoplay = document.getElementById('autoplayToggle').checked ? 1 : 0;
             
-            const micBtn = document.getElementById('micBtn');
-            micBtn.classList.add('bg-red-600', 'animate-pulse');
+            document.getElementById('mainPlayer').src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=${isAutoplay}&enablejsapi=1`;
+            document.getElementById('currentTitle').innerText = title;
+            
+            currentPlaying = { id, title, thumb: `https://img.youtube.com/vi/${id}/hqdefault.jpg` };
+            
+            // Lưu vào lịch sử LocalStorage
+            saveToHistory(currentPlaying);
+            switchTab('home');
+        }
 
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById('searchInput').value = transcript;
-                handleSearch();
-                micBtn.classList.remove('bg-red-600', 'animate-pulse');
-            };
+        function loadDefaultVideo() {
+            playVideo(defaultVideos[0].id, defaultVideos[0].title);
+        }
 
-            recognition.onerror = function() {
-                micBtn.classList.remove('bg-red-600', 'animate-pulse');
-            };
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if(query) {
+                playVideo(query, `Kết quả cho: ${query}`);
+            }
+        }
 
-            recognition.onend = function() {
-                micBtn.classList.remove('bg-red-600', 'animate-pulse');
-            };
+        // Quản lý LocalStorage (Favorites & History)
+        function saveToHistory(video) {
+            let history = JSON.parse(localStorage.getItem('yt_history') || '[]');
+            history = history.filter(v => v.id !== video.id);
+            history.unshift(video);
+            if(history.length > 20) history.pop();
+            localStorage.setItem('yt_history', JSON.stringify(history));
+        }
 
-            recognition.start();
+        function saveCurrentVideo() {
+            let favorites = JSON.parse(localStorage.getItem('yt_favorites') || '[]');
+            if(!favorites.some(v => v.id === currentPlaying.id)) {
+                favorites.unshift(currentPlaying);
+                localStorage.setItem('yt_favorites', JSON.stringify(favorites));
+                alert('Đã thêm vào danh sách Yêu thích!');
+            } else {
+                alert('Video này đã có trong danh sách Yêu thích của bạn.');
+            }
+        }
+
+        function switchTab(tab) {
+            const homeView = document.getElementById('homeView');
+            const libraryView = document.getElementById('libraryView');
+            const tabHomeBtn = document.getElementById('tabHomeBtn');
+            const tabLibBtn = document.getElementById('tabLibBtn');
+
+            if(tab === 'home') {
+                homeView.classList.remove('hidden');
+                libraryView.classList.add('hidden');
+                tabHomeBtn.className = "px-3 py-1.5 rounded-full text-sm font-medium bg-[#272727] text-white";
+                tabLibBtn.className = "px-3 py-1.5 rounded-full text-sm font-medium hover:bg-[#272727] text-gray-300";
+            } else {
+                homeView.classList.add('hidden');
+                libraryView.classList.remove('hidden');
+                tabLibBtn.className = "px-3 py-1.5 rounded-full text-sm font-medium bg-[#272727] text-white";
+                tabHomeBtn.className = "px-3 py-1.5 rounded-full text-sm font-medium hover:bg-[#272727] text-gray-300";
+                renderLibrary();
+            }
+        }
+
+        function renderLibrary() {
+            const favorites = JSON.parse(localStorage.getItem('yt_favorites') || '[]');
+            const history = JSON.parse(localStorage.getItem('yt_history') || '[]');
+
+            document.getElementById('favoritesList').innerHTML = favorites.length ? favorites.map(v => `
+                <div onclick="playVideo('${v.id}', '${v.title}')" class="bg-[#1f1f1f] rounded-xl overflow-hidden cursor-pointer hover:bg-[#2a2a2a] transition border border-[#272727] p-2 flex gap-3">
+                    <img src="${v.thumb}" class="w-28 h-16 object-cover rounded-lg">
+                    <div class="flex flex-col justify-center">
+                        <h4 class="text-sm font-semibold text-white line-clamp-2">${v.title}</h4>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-gray-500 text-sm">Chưa có video yêu thích nào.</p>';
+
+            document.getElementById('historyList').innerHTML = history.length ? history.map(v => `
+                <div onclick="playVideo('${v.id}', '${v.title}')" class="bg-[#1f1f1f] rounded-xl overflow-hidden cursor-pointer hover:bg-[#2a2a2a] transition border border-[#272727] p-2 flex gap-3">
+                    <img src="${v.thumb}" class="w-28 h-16 object-cover rounded-lg">
+                    <div class="flex flex-col justify-center">
+                        <h4 class="text-sm font-semibold text-white line-clamp-2">${v.title}</h4>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-gray-500 text-sm">Chưa có lịch sử xem.</p>';
         }
     </script>
 </body>
